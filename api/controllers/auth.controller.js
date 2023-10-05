@@ -1,18 +1,23 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import { createError } from "../utils/error.js";
 
-export const signup = async (req, res) => {
+export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
-  const hashedPassword = bcrypt.hashSync(password, 10);
-  const newUser = new User({
-    username,
-    email,
-    password: hashedPassword,
-  });
   try {
+    const hasUsername = await User.findOne({ username });
+    if (hasUsername) return next(createError(401, "username has been used!"));
+    const hasEmail = await User.findOne({ email });
+    if (hasEmail) return next(createError(401, "email has been used!"));
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+    });
     const savedUser = await newUser.save();
     res.status(201).json(savedUser);
   } catch (err) {
-    res.status(401).send(err.message);
+    next(createError(err));
   }
 };
