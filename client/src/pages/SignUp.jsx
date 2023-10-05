@@ -24,6 +24,7 @@ const SignUp = () => {
       if (data.success === false) {
         setIsLoading(false);
         setError(data.message);
+        return;
       }
       setIsLoading(false);
       navigate("/");
