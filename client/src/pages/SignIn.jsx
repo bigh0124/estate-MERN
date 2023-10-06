@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import newRequset from "../utils/request";
+import { useSelector, useDispatch } from "react-redux";
+import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const { error, loading } = useSelector((state) => state.user);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -19,18 +21,16 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setIsLoading(true);
+      dispatch(signInStart());
       const { data } = await newRequset.post("/auth/signin", { ...formData });
       if (data.success === false) {
-        setIsLoading(false);
-        setError(data.message);
+        dispatch(signInFailure(data.message));
         return;
       }
-      setIsLoading(false);
+      dispatch(signInSuccess(data));
       navigate("/");
     } catch (err) {
-      setIsLoading(false);
-      setError(err.message);
+      dispatch(signInFailure(err.message));
     }
   };
   return (
@@ -46,10 +46,10 @@ const SignIn = () => {
           onChange={handleChange}
         />
         <button
-          disabled={isLoading}
+          disabled={loading}
           className="text-white p-3 border rounded-lg bg-slate-700 hover:opacity-95 disabled:opacity-80 uppercase"
         >
-          {isLoading ? "loading..." : "Sing In"}
+          {loading ? "loading..." : "Sing In"}
         </button>
       </form>
       <div className="flex mt-3 gap-3">
