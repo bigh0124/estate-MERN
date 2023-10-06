@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import newRequset from "../utils/request";
+import OAuth from "../components/OAuth";
 
 const SignUp = () => {
   const [formData, setFormData] = useState({});
@@ -59,6 +60,7 @@ const SignUp = () => {
         >
           {isLoading ? "loading..." : "Sing Up"}
         </button>
+        <OAuth text={"continue with google"} />
       </form>
       <div className="flex mt-3 gap-3">
         <p>Have an account?</p>
