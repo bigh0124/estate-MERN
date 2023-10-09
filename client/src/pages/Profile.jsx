@@ -1,21 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
+import { app } from "../firebase";
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 const Profile = () => {
   const { currentUser } = useSelector((state) => state.user);
+  const [file, setFile] = useState(undefined);
+  const [fileUploadError, setFileUploadError] = useState(false);
+  const [filePrec, setFilePrec] = useState(0);
+  const [formData, setFormData] = useState({});
+  const fileRef = useRef(null);
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
+  };
 
-  const handleChange = (e) => {};
+  useEffect(() => {
+    if (file) uploadFile(file);
+  }, [file]);
+  console.log(formData, filePrec, fileUploadError);
+
+  const uploadFile = (file) => {
+    const storage = getStorage(app);
+    const fileName = new Date().getTime() + file.name;
+    const storageRef = ref(storage, fileName);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setFilePrec(Math.round(progress));
+      },
+      (err) => {
+        setFileUploadError(true);
+      },
+      () =>
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          console.log(downloadURL);
+          setFormData((prev) => ({ ...prev, avatar: downloadURL }));
+        })
+    );
+  };
 
   return (
     <div className="p-3 mx-auto max-w-lg">
       <h1 className="text-3xl text-center font-semibold my-7">Profile</h1>
       <form className="flex flex-col gap-4 ">
+        <input type="file" accept="image/*" hidden ref={fileRef} onChange={(e) => setFile(e.target.files[0])} />
         <img
           className="rounded-full w-24 h-24 object-cover cursor-pointer self-center"
-          src={currentUser.avatar}
+          src={formData.avatar || currentUser.avatar}
           alt="photo"
+          onClick={() => fileRef.current.click()}
         />
+        {fileUploadError ? (
+          <span className="text-red-700 text-center">Upload error</span>
+        ) : filePrec > 0 && filePrec < 100 ? (
+          <span className="text-slate-700 text-center">{`Uploading ${filePrec}%`}</span>
+        ) : filePrec == 100 ? (
+          <span className="text-green-700 text-center">Image successfully uploaded!</span>
+        ) : (
+          ""
+        )}
         <input
           type="text"
           placeholder="username"
