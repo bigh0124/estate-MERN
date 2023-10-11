@@ -3,7 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { app } from "../firebase";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
-import { updateUserStart, updateUserSuccess, updateUserFailure } from "../redux/user/userSlice";
+import {
+  updateUserStart,
+  updateUserSuccess,
+  updateUserFailure,
+  deleteUserStart,
+  deleteUserSuccess,
+  deleteUserFailure,
+} from "../redux/user/userSlice";
 import newRequest from "../utils/request";
 const Profile = () => {
   const { currentUser, loading, error } = useSelector((state) => state.user);
@@ -62,6 +69,20 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteUser = async (e) => {
+    try {
+      dispatch(deleteUserStart());
+      const { data } = await newRequest.delete(`/user/delete/${currentUser._id}`);
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(null));
+    } catch (err) {
+      dispatch(deleteUserFailure(err.response.data.message));
+    }
+  };
+
   return (
     <div className="p-3 mx-auto max-w-lg">
       <h1 className="text-3xl text-center font-semibold my-7">Profile</h1>
@@ -110,6 +131,7 @@ const Profile = () => {
         />
         <button
           disabled={loading}
+          type="submit"
           className="text-white p-3 border rounded-lg bg-slate-700 hover:opacity-95 disabled:opacity-80 uppercase"
         >
           {loading ? "loading..." : "update"}
@@ -118,7 +140,9 @@ const Profile = () => {
           create listing
         </button>
         <div className="flex justify-between">
-          <button className="text-red-500">Delete Account</button>
+          <button onClick={handleDeleteUser} type="button" className="text-red-500">
+            Delete Account
+          </button>
           <button className="text-red-500">Sign Out</button>
         </div>
         <Link to="/" className="text-green-800 text-center">
