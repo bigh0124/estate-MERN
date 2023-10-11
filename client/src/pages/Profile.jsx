@@ -1,23 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { app } from "../firebase";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { updateUserStart, updateUserSuccess, updateUserFailure } from "../redux/user/userSlice";
+import newRequest from "../utils/request";
 const Profile = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, loading, error } = useSelector((state) => state.user);
   const [file, setFile] = useState(undefined);
   const [fileUploadError, setFileUploadError] = useState(false);
   const [filePrec, setFilePrec] = useState(0);
   const [formData, setFormData] = useState({});
+  const [updateSuccess, setUpdateSuccess] = useState(false);
   const fileRef = useRef(null);
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
   };
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (file) uploadFile(file);
   }, [file]);
-  console.log(formData, filePrec, fileUploadError);
 
   const uploadFile = (file) => {
     const storage = getStorage(app);
@@ -36,16 +40,32 @@ const Profile = () => {
       },
       () =>
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          console.log(downloadURL);
           setFormData((prev) => ({ ...prev, avatar: downloadURL }));
         })
     );
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdateSuccess(false);
+    try {
+      dispatch(updateUserStart());
+      const { data } = await newRequest.post(`/user/update/${currentUser._id}`, formData);
+      if (data.success === false) {
+        dispatch(updateUserFailure(data.message));
+        return;
+      }
+      dispatch(updateUserSuccess(data));
+      setUpdateSuccess(true);
+    } catch (err) {
+      dispatch(updateUserFailure(err.response.data.message));
+    }
+  };
+
   return (
     <div className="p-3 mx-auto max-w-lg">
       <h1 className="text-3xl text-center font-semibold my-7">Profile</h1>
-      <form className="flex flex-col gap-4 ">
+      <form className="flex flex-col gap-4 " onSubmit={handleSubmit}>
         <input type="file" accept="image/*" hidden ref={fileRef} onChange={(e) => setFile(e.target.files[0])} />
         <img
           className="rounded-full w-24 h-24 object-cover cursor-pointer self-center"
@@ -62,25 +82,37 @@ const Profile = () => {
         ) : (
           ""
         )}
+        {error ? <span className="text-red-700 text-center">Email or username has been used</span> : ""}
+        {updateSuccess ? <span className="text-green-700 text-center">Update Successful</span> : ""}
         <input
           type="text"
           placeholder="username"
           className="p-3 border rounded-lg"
           id="username"
           onChange={handleChange}
-          // value={username}
+          defaultValue={currentUser.username}
         />
-        <input type="email" placeholder="email" className="p-3 border rounded-lg" id="email" onChange={handleChange} />
+        <input
+          type="email"
+          placeholder="email"
+          className="p-3 border rounded-lg"
+          id="email"
+          onChange={handleChange}
+          defaultValue={currentUser.email}
+        />
         <input
           type="password"
           placeholder="password"
           className="p-3 border rounded-lg"
           id="password"
           onChange={handleChange}
-          // value={email}
+          defaultValue={""}
         />
-        <button className="text-white p-3 border rounded-lg bg-slate-700 hover:opacity-95 disabled:opacity-80 uppercase">
-          update
+        <button
+          disabled={loading}
+          className="text-white p-3 border rounded-lg bg-slate-700 hover:opacity-95 disabled:opacity-80 uppercase"
+        >
+          {loading ? "loading..." : "update"}
         </button>
         <button className="text-white p-3 border rounded-lg bg-green-700 hover:opacity-95 disabled:opacity-80 uppercase">
           create listing
