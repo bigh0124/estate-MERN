@@ -38,7 +38,7 @@ app.use((err, req, res, next) => {
     message,
   };
 
-  res.json(error);
+  res.status(statusCode).json(error);
 });
 
 app.listen(3000, () => {
