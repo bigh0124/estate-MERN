@@ -153,9 +153,12 @@ const Profile = () => {
         >
           {loading ? "loading..." : "update"}
         </button>
-        <button className="text-white p-3 border rounded-lg bg-green-700 hover:opacity-95 disabled:opacity-80 uppercase">
+        <Link
+          to="/create-listing"
+          className="text-white p-3 border rounded-lg bg-green-700 hover:opacity-95 disabled:opacity-80 uppercase text-center"
+        >
           create listing
-        </button>
+        </Link>
         <div className="flex justify-between">
           <button onClick={handleDeleteUser} type="button" className="text-red-500">
             Delete Account
