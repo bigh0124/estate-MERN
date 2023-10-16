@@ -22,6 +22,9 @@ const Profile = () => {
   const [filePrec, setFilePrec] = useState(0);
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [listings, setListings] = useState([]);
+  const [isShowListings, setIsShowListings] = useState(false);
+  const [showListingsError, setShowListingsError] = useState(null);
   const fileRef = useRef(null);
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.id]: e.target.value }));
@@ -100,6 +103,22 @@ const Profile = () => {
     }
   };
 
+  const handleShowListings = async (e) => {
+    if (listings.length === 0) {
+      try {
+        setIsShowListings(true);
+        const { data } = await newRequest.get(`/user/listings/${currentUser._id}`);
+        setListings(data);
+        setIsShowListings(false);
+      } catch (err) {
+        setShowListingsError(err.response.data.message);
+        setIsShowListings(false);
+      }
+    } else {
+      setListings([]);
+    }
+  };
+
   return (
     <div className="p-3 mx-auto max-w-lg">
       <h1 className="text-3xl text-center font-semibold my-7">Profile</h1>
@@ -167,10 +186,28 @@ const Profile = () => {
             Sign Out
           </button>
         </div>
-        <Link to="/" className="text-green-800 text-center">
-          <span>Show listings</span>
-        </Link>
+        <button type="button" onClick={handleShowListings} className="text-green-800 text-center">
+          <span>{listings.length > 0 ? "Close listings" : "Show listings"}</span>
+        </button>
       </form>
+      {showListingsError && <span className="text-red-700">Showing listings is error</span>}
+      <div className="mt-4">
+        {listings.length > 0 && <h1 className="text-3xl text-center font-semibold my-7">Your Listings</h1>}
+        {listings.map((listing, i) => {
+          return (
+            <div key={i} className="p-3 border rounded-lg flex mb-4 justify-between gap-4">
+              <Link to={`listing/${listing._id}`} className="flex items-center gap-4 flex-1">
+                <img src={listing.imageUrls[0]} alt="" className="h-12 w-20 object-cover" />
+                <span className="text-semibold hover:underline">{listing.name}</span>
+              </Link>
+              <div className="flex flex-col gap-2 justify-center">
+                <button className="text-red-700 uppercase">delete</button>
+                <button className="text-green-700 uppercase">edit</button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };
