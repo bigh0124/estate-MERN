@@ -1,6 +1,7 @@
 import { createError } from "../utils/error.js";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
+import Listing from "../models/listing.model.js";
 export const test = (req, res) => {
   res.send("test");
 };
@@ -35,6 +36,16 @@ export const deleteUser = async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.id);
     res.status(200).clearCookie("access_token").send("Account has been deleted!");
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getUserListings = async (req, res, next) => {
+  if (req.user.id !== req.params.id) return next(createError(401, "Unauthorized"));
+  try {
+    const listings = await Listing.find({ userRef: req.params.id });
+    res.status(200).json(listings);
   } catch (err) {
     next(err);
   }
