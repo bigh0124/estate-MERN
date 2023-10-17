@@ -8,6 +8,7 @@ import About from "./pages/About";
 import Header from "./components/Header";
 import PrivateRoute from "./components/PrivateRoute";
 import CreateListing from "./pages/CreateListing";
+import EditListing from "./pages/EditListing";
 
 const Layout = () => {
   return (
@@ -52,6 +53,15 @@ const router = createBrowserRouter([
         element: (
           <PrivateRoute>
             <CreateListing />
+          </PrivateRoute>
+        ),
+      },
+      ,
+      {
+        path: "edit-listing/:id",
+        element: (
+          <PrivateRoute>
+            <EditListing />
           </PrivateRoute>
         ),
       },
