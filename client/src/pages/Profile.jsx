@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { app } from "../firebase";
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
+import { getDownloadURL, getStorage, list, ref, uploadBytesResumable } from "firebase/storage";
 import {
   updateUserStart,
   updateUserSuccess,
@@ -24,6 +24,7 @@ const Profile = () => {
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [listings, setListings] = useState([]);
   const [isShowListings, setIsShowListings] = useState(false);
+  const [deleteListingError, setDeletedListingError] = useState(false);
   const [showListingsError, setShowListingsError] = useState(null);
   const fileRef = useRef(null);
   const handleChange = (e) => {
@@ -103,19 +104,36 @@ const Profile = () => {
     }
   };
 
+  const getListings = async () => {
+    try {
+      setIsShowListings(true);
+      setShowListingsError("");
+      const { data } = await newRequest.get(`/user/listings/${currentUser._id}`);
+      setListings(data);
+      if (data.length === 0) {
+        setShowListingsError("You have no listing");
+      }
+      setIsShowListings(false);
+    } catch (err) {
+      setShowListingsError(err.response.data.message);
+      setIsShowListings(false);
+    }
+  };
+
   const handleShowListings = async (e) => {
     if (listings.length === 0) {
-      try {
-        setIsShowListings(true);
-        const { data } = await newRequest.get(`/user/listings/${currentUser._id}`);
-        setListings(data);
-        setIsShowListings(false);
-      } catch (err) {
-        setShowListingsError(err.response.data.message);
-        setIsShowListings(false);
-      }
+      await getListings();
     } else {
       setListings([]);
+    }
+  };
+
+  const handleListingRemove = async (id) => {
+    try {
+      await newRequest.delete(`/listing/delete/${id}`);
+      await getListings();
+    } catch (err) {
+      setDeletedListingError(err.response.data.message);
     }
   };
 
@@ -189,8 +207,21 @@ const Profile = () => {
         <button type="button" onClick={handleShowListings} className="text-green-800 text-center">
           <span>{listings.length > 0 ? "Close listings" : "Show listings"}</span>
         </button>
+        {showListingsError && (
+          <span className="text-red-700 text-center">
+            {showListingsError}
+            {listings.length === 0 ? (
+              <Link className="text-green-600 uppercase hover:underline ml-4" to="/create-listing">
+                create new one?
+              </Link>
+            ) : (
+              ""
+            )}
+          </span>
+        )}
+        {deleteListingError && <span className="text-red-700 text-center">{deleteListingError}</span>}
       </form>
-      {showListingsError && <span className="text-red-700">Showing listings is error</span>}
+
       <div className="mt-4">
         {listings.length > 0 && <h1 className="text-3xl text-center font-semibold my-7">Your Listings</h1>}
         {listings.map((listing, i) => {
@@ -201,7 +232,13 @@ const Profile = () => {
                 <span className="text-semibold hover:underline">{listing.name}</span>
               </Link>
               <div className="flex flex-col gap-2 justify-center">
-                <button className="text-red-700 uppercase">delete</button>
+                <button
+                  type="button"
+                  onClick={() => handleListingRemove(listing._id)}
+                  className="text-red-700 uppercase"
+                >
+                  delete
+                </button>
                 <button className="text-green-700 uppercase">edit</button>
               </div>
             </div>
