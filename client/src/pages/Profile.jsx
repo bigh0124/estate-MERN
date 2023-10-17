@@ -227,7 +227,7 @@ const Profile = () => {
         {listings.map((listing, i) => {
           return (
             <div key={i} className="p-3 border rounded-lg flex mb-4 justify-between gap-4">
-              <Link to={`listing/${listing._id}`} className="flex items-center gap-4 flex-1">
+              <Link to={`/listing/${listing._id}`} className="flex items-center gap-4 flex-1">
                 <img src={listing.imageUrls[0]} alt="" className="h-12 w-20 object-cover" />
                 <span className="text-semibold hover:underline">{listing.name}</span>
               </Link>
