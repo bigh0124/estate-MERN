@@ -2,6 +2,7 @@ import { createError } from "../utils/error.js";
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import Listing from "../models/listing.model.js";
+
 export const test = (req, res) => {
   res.send("test");
 };
@@ -46,6 +47,16 @@ export const getUserListings = async (req, res, next) => {
   try {
     const listings = await Listing.find({ userRef: req.params.id });
     res.status(200).json(listings);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return next(createError(404, "User not found"));
+    res.status(200).json(user);
   } catch (err) {
     next(err);
   }
