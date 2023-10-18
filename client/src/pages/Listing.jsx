@@ -5,8 +5,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import SwiperCore from "swiper";
 import { Navigation } from "swiper/modules";
 import "swiper/css/bundle";
-import { FaBath, FaBed, FaChair, FaMapMarkedAlt, FaMapMarkerAlt, FaParking, FaShare } from "react-icons/fa";
+import { FaBath, FaBed, FaChair, FaMapMarkerAlt, FaParking, FaShare } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import Contact from "../components/Contact";
 const Listing = () => {
   const [listing, setListing] = useState(null);
   const [isLoading, setIsloading] = useState(false);
@@ -37,7 +38,7 @@ const Listing = () => {
 
     fetchListing();
   }, [id]);
-
+  console.log(contact);
   return (
     <main>
       {isLoading && <p className="text-center my-7 text-2xl">Loading...</p>}
@@ -122,7 +123,7 @@ const Listing = () => {
                 Contact landlord
               </button>
             )}
-            {/* {contact && <Contact listing={listing} />} */}
+            {contact && <Contact listing={listing} />}
           </div>
         </div>
       )}
