@@ -24,7 +24,7 @@ HI~我叫陳嘉泓，我是2023年畢業生。<BR>
 <hr>
 
 ### 作品集 
- - <a href="https://estatem.onrender.com"  target="blank"><B>EstateM</B></a> <BR>
+ - <a href="https://estatem.onrender.com"  target="blank"><B>EstateM(開啟需要等待一段時間)</B></a> <BR>
    <a href="https://estatem.onrender.com"  target="blank"> <img src="https://i.imgur.com/OocrNqm.png" width="100%" ></a> <BR>
   
    ⌞ 使用MERN(Mongo、Express、React、Nodejs)框架完成。<BR>
