@@ -15,7 +15,7 @@
 <hr>
 
 ### 自我介紹
-HI~我叫陳嘉泓，我是2023年畢業生。<BR>
+HI~我叫陳嘉泓<BR>
 在大學時期我是念系上的網頁設計課而認識到Web design，進而發現自己對網頁設計的喜愛，看著畫面從無到有，這種感覺讓我非常喜歡，我發現自己和同樣無基礎的同學比起來，我總能更快理解邏輯，因此對於寫網頁很有興趣。<BR>
 
 在學期間，我發現網頁設計是一條很適合我的職業選擇，考慮到學校課程並不深入，為了讓自己能在職場上更好的接軌，我購買了Udemy的課程自學，在課程中，我學習到了包含HTML5 / CSS3 / RWD  / JS / Node.js / AJAX / Axios / Mongodb / React.js / Git 的底層邏輯，並練習了許多project。
@@ -24,9 +24,8 @@ HI~我叫陳嘉泓，我是2023年畢業生。<BR>
 <hr>
 
 ### 作品集 
- - <a href="https://estatem.onrender.com"  target="blank"><B>EstateM(開啟需要等待一段時間)</B></a> <BR>
-   <a href="https://estatem.onrender.com"  target="blank"> <img src="https://i.imgur.com/OocrNqm.png" width="100%" ></a> <BR>
-  
+ - <a href="https://github.com/bigh0124/estate-MERN"  target="blank"><B>estate-MERN</B></a> <BR>
+
    ⌞ 使用MERN(Mongo、Express、React、Nodejs)框架完成。<BR>
    ⌞ 串接firebase上傳圖片。<BR>
    ⌞ 使用cookie驗證使用者登入。 <BR>
